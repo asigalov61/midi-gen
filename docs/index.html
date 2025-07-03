@@ -18,14 +18,14 @@
     <meta property="og:url" content="https://webchatappai.github.io/midi-gen/">
     <meta property="og:title" content="MIDI Generator Piano Roll | AI-Powered Music Generation Tool">
     <meta property="og:description" content="Generate MIDI music with AI-powered tools. Free standalone piano roll application with neural network plugins, FluidSynth playback, and Python extensibility.">
-    <meta property="og:image" content="https://webchatappai.github.io/midi-gen/assets/img/image1.png">
+    <meta property="og:image" content="https://webchatappai.github.io/midi-gen/assets/img/piano-roll.png">
     
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://webchatappai.github.io/midi-gen/">
     <meta property="twitter:title" content="MIDI Generator Piano Roll | AI-Powered Music Generation Tool">
     <meta property="twitter:description" content="Generate MIDI music with AI-powered tools. Free standalone piano roll application with neural network plugins, FluidSynth playback, and Python extensibility.">
-    <meta property="twitter:image" content="https://webchatappai.github.io/midi-gen/assets/img/image1.png">
+    <meta property="twitter:image" content="https://webchatappai.github.io/midi-gen/assets/img/piano-roll.png">
     
     <!-- Structured Data -->
     <script type="application/ld+json">
@@ -48,7 +48,7 @@
             "name": "WebChatAppAi",
             "url": "https://github.com/WebChatAppAi"
         },
-        "screenshot": "https://webchatappai.github.io/midi-gen/assets/img/image1.png",
+        "screenshot": "https://webchatappai.github.io/midi-gen/assets/img/piano-roll.png",
         "featureList": [
             "AI-powered MIDI generation",
             "Modern piano roll interface", 
@@ -137,7 +137,7 @@
         <div class="header-container">
             <div class="logo">
                 <i class="fas fa-music"></i>
-                <h1>MidiGEN-V2 Piano Roll</h1>
+                <h1>MidiGEN-V2.1 Piano Roll</h1>
             </div>
             <nav>
                 <ul>
@@ -156,24 +156,79 @@
 
     <section class="hero">
         <div class="hero-overlay"></div>
-        <div class="hero-content">
-            <h1>Generate MIDI with AI-Powered Tools</h1>
-            <p>A plugin-powered standalone piano roll app with neural network capabilities</p>
-            <div class="hero-buttons">
-                <a href="pages/download.html" class="btn primary-btn"><i class="fas fa-download"></i> Download v2.0</a>
-                <a href="https://github.com/WebChatAppAi/midi-gen" class="btn secondary-btn"><i class="fab fa-github"></i> View on GitHub</a>
-            </div>
-            <div class="version-tag">
-                <span><i class="fas fa-calendar-alt"></i> Latest Release: June 8, 2025</span>
+        <div class="hero-particles"></div>
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <i class="fas fa-sparkles"></i>
+                    <span>NEW: AI-Powered v2.1</span>
+                    <div class="badge-pulse"></div>
+                </div>
+                <h1>
+                    Create Music with 
+                    <span class="gradient-text">AI Neural Networks</span>
+                </h1>
+                <p class="hero-subtitle">
+                    Transform your musical ideas into reality with our intelligent piano roll editor
+                </p>
+                <div class="hero-features">
+                    <div class="hero-feature">
+                        <i class="fas fa-brain"></i>
+                        <span>15+ AI Models</span>
+                    </div>
+                    <div class="hero-feature">
+                        <i class="fas fa-bolt"></i>
+                        <span>Real-time Generation</span>
+                    </div>
+                    <div class="hero-feature">
+                        <i class="fas fa-puzzle-piece"></i>
+                        <span>Plugin System</span>
+                    </div>
+                </div>
+                <div class="hero-buttons">
+                    <a href="pages/download.html" class="btn primary-btn hero-cta">
+                        <i class="fas fa-download"></i> 
+                        <span class="btn-text">
+                            <strong>Download Free</strong>
+                            <small>No signup required</small>
+                        </span>
+                    </a>
+                    <a href="https://github.com/WebChatAppAi/midi-gen" class="btn secondary-btn demo-btn">
+                        <i class="fas fa-play"></i> 
+                        Watch Demo
+                    </a>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat-item-hero">
+                        <div class="stat-number-hero" data-count="4585">0</div>
+                        <div class="stat-label-hero">Downloads</div>
+                    </div>
+                    <div class="stat-divider">•</div>
+                    <div class="stat-item-hero">
+                        <div class="stat-number-hero" data-count="1200">0</div>
+                        <div class="stat-label-hero">Active Users</div>
+                    </div>
+                    <div class="stat-divider">•</div>
+                    <div class="stat-item-hero">
+                        <div class="stat-number-hero" data-count="4.8">0</div>
+                        <div class="stat-label-hero">Rating</div>
+                    </div>
+                </div>
+                <div class="scroll-indicator">
+                    <div class="scroll-arrow">
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <span>Discover Features</span>
+                </div>
             </div>
         </div>
     </section>
 
     <section class="featured-img">
         <div class="container">
-            <img src="assets/img/image1.png" alt="Piano Roll Screenshot" class="screenshot-img">
+            <img src="assets/img/piano-roll.png" alt="Piano Roll Interface Screenshot" class="screenshot-img">
             <div class="caption">
-                <p>🎼 Generated MIDI using Motif Generator</p>
+                <p>🎼 Modern Piano Roll Interface with Grid and Note Visualization</p>
             </div>
         </div>
     </section>
@@ -231,28 +286,140 @@
         </div>
     </section>
 
-    <section class="screenshot-section">
+    <section id="interactive-demo" class="interactive-demo">
         <div class="container">
-            <div class="screenshot-grid">
-                <div class="screenshot-text">
-                    <h2>Powerful Visualization</h2>
-                    <p>The piano roll provides a clear visualization of your generated MIDI, with smooth zoom functionality and an intuitive interface for editing and playback.</p>
-                    <ul class="feature-list">
-                        <li><i class="fas fa-check"></i> Note visualization with color-coding</li>
-                        <li><i class="fas fa-check"></i> Adjustable grid and time ruler</li>
-                        <li><i class="fas fa-check"></i> Playhead with beat-synced tracking</li>
-                        <li><i class="fas fa-check"></i> Zoom in/out for detail work</li>
-                    </ul>
-                </div>
-                <div class="screenshot-img-container">
-                    <img src="assets/img/image2.png" alt="Piano Roll Screenshot" class="screenshot-img">
-                    <div class="caption">
-                        <p>🧠 Markov Chain Plugin Output + Plugin Panel Floating</p>
+            <h2>Experience the Power</h2>
+            <p class="section-description">See how our AI-powered piano roll transforms your musical ideas into reality</p>
+            
+            <div class="demo-showcase">
+                <div class="demo-content">
+                    <div class="demo-tabs">
+                        <button class="demo-tab active" data-demo="piano-roll">
+                            <i class="fas fa-keyboard"></i>
+                            Piano Roll
+                        </button>
+                        <button class="demo-tab" data-demo="plugins">
+                            <i class="fas fa-puzzle-piece"></i>
+                            AI Plugins
+                        </button>
+                        <button class="demo-tab" data-demo="generation">
+                            <i class="fas fa-magic"></i>
+                            Generation
+                        </button>
+                    </div>
+                    
+                    <div class="demo-panel active" id="demo-piano-roll">
+                        <div class="demo-image-container">
+                            <img src="assets/img/piano-roll.png" alt="Piano Roll Interface" class="demo-img">
+                            <div class="floating-features">
+                                <div class="feature-bubble" style="top: 20%; left: 10%;">
+                                    <i class="fas fa-music"></i>
+                                    <span>Note Editor</span>
+                                </div>
+                                <div class="feature-bubble" style="top: 60%; right: 15%;">
+                                    <i class="fas fa-clock"></i>
+                                    <span>Time Ruler</span>
+                                </div>
+                                <div class="feature-bubble" style="bottom: 30%; left: 20%;">
+                                    <i class="fas fa-palette"></i>
+                                    <span>Velocity Colors</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="demo-text">
+                            <h3>Modern Piano Roll Interface</h3>
+                            <p>Professional-grade piano roll with intuitive controls, color-coded velocity, and seamless zoom functionality for precise MIDI editing.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="demo-panel" id="demo-plugins">
+                        <div class="demo-image-container">
+                            <img src="assets/img/plugin-pera.png" alt="Plugin Manager" class="demo-img">
+                            <div class="floating-features">
+                                <div class="feature-bubble" style="top: 15%; right: 10%;">
+                                    <i class="fas fa-brain"></i>
+                                    <span>AI Models</span>
+                                </div>
+                                <div class="feature-bubble" style="top: 50%; left: 5%;">
+                                    <i class="fas fa-sliders-h"></i>
+                                    <span>Parameters</span>
+                                </div>
+                                <div class="feature-bubble" style="bottom: 20%; right: 20%;">
+                                    <i class="fas fa-play"></i>
+                                    <span>Generate</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="demo-text">
+                            <h3>Intelligent Plugin System</h3>
+                            <p>Powerful AI-driven plugins with customizable parameters. Run neural networks, Markov chains, and custom algorithms with just a few clicks.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="demo-panel" id="demo-generation">
+                        <div class="demo-image-container">
+                            <img src="assets/img/ai-in-actions.png" alt="AI Generation" class="demo-img">
+                            <div class="floating-features">
+                                <div class="feature-bubble pulse" style="top: 25%; left: 15%;">
+                                    <i class="fas fa-bolt"></i>
+                                    <span>Real-time</span>
+                                </div>
+                                <div class="feature-bubble pulse" style="top: 55%; right: 10%;">
+                                    <i class="fas fa-waveform-path"></i>
+                                    <span>Neural AI</span>
+                                </div>
+                                <div class="feature-bubble pulse" style="bottom: 25%; left: 30%;">
+                                    <i class="fas fa-sparkles"></i>
+                                    <span>Creative</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="demo-text">
+                            <h3>AI Music Generation</h3>
+                            <p>Watch AI create music in real-time. Neural networks analyze patterns and generate unique melodies, harmonies, and rhythms instantly.</p>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
+
+    <section class="stats-section">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-icon">
+                        <i class="fas fa-download"></i>
+                    </div>
+                    <div class="stat-number" data-count="4585">0</div>
+                    <div class="stat-label">Downloads</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon">
+                        <i class="fas fa-puzzle-piece"></i>
+                    </div>
+                    <div class="stat-number" data-count="15">0</div>
+                    <div class="stat-label">AI Plugins</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-number" data-count="1200">0</div>
+                    <div class="stat-label">Active Users</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div class="stat-number" data-count="4.8">0</div>
+                    <div class="stat-label">User Rating</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
 
     <section class="plugins-overview">
         <div class="container">
@@ -279,10 +446,35 @@
 
     <section class="cta-section">
         <div class="container">
-            <h2>Ready to Create with AI?</h2>
-            <p>Download now and start composing with our powerful piano roll application</p>
-            <a href="https://github.com/WebChatAppAi/midi-gen/releases/download/v2.0-WIN-PORTABLE/MidiGenV2.zip" class="btn primary-btn"><i class="fas fa-download"></i> Download Windows Portable</a>
-            <p class="version-note">Version 2.0 – <a href="pages/download.html">See all platforms & instructions</a></p>
+            <div class="cta-content">
+                <h2>Ready to Create Music with AI?</h2>
+                <p>Join thousands of musicians already using our AI-powered piano roll to create incredible music</p>
+                <div class="cta-buttons">
+                    <a href="pages/download.html" class="btn primary-btn pulse-btn">
+                        <i class="fas fa-download"></i> 
+                        Download v2.1
+                        <span class="btn-subtitle">Free & Open Source</span>
+                    </a>
+                    <a href="https://github.com/WebChatAppAi/midi-gen" class="btn secondary-btn">
+                        <i class="fab fa-github"></i> 
+                        View Source Code
+                    </a>
+                </div>
+                <div class="cta-features">
+                    <div class="cta-feature">
+                        <i class="fas fa-check-circle"></i>
+                        <span>No Installation Required</span>
+                    </div>
+                    <div class="cta-feature">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Cross-Platform Support</span>
+                    </div>
+                    <div class="cta-feature">
+                        <i class="fas fa-check-circle"></i>
+                        <span>AI-Powered Generation</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 

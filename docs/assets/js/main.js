@@ -114,6 +114,15 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Add animation when elements come into view
     animateOnScroll();
+    
+    // Initialize interactive demo
+    initInteractiveDemo();
+    
+    // Initialize stats counter animation
+    initStatsCounter();
+    
+    // Initialize hero stats counter
+    initHeroStatsCounter();
 });
 
 // Function to highlight syntax in code blocks
@@ -253,3 +262,152 @@ if (typedElement) {
         2000
     );
 }
+
+// Function to initialize interactive demo
+function initInteractiveDemo() {
+    const demoTabs = document.querySelectorAll('.demo-tab');
+    const demoPanels = document.querySelectorAll('.demo-panel');
+    
+    if (!demoTabs.length || !demoPanels.length) return;
+    
+    demoTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            const targetDemo = this.getAttribute('data-demo');
+            
+            // Remove active class from all tabs and panels
+            demoTabs.forEach(t => t.classList.remove('active'));
+            demoPanels.forEach(p => p.classList.remove('active'));
+            
+            // Add active class to clicked tab
+            this.classList.add('active');
+            
+            // Show corresponding panel
+            const targetPanel = document.getElementById(`demo-${targetDemo}`);
+            if (targetPanel) {
+                targetPanel.classList.add('active');
+            }
+        });
+    });
+}
+
+// Function to initialize stats counter animation
+function initStatsCounter() {
+    const statNumbers = document.querySelectorAll('.stat-number');
+    
+    if (!statNumbers.length) return;
+    
+    const animateCounter = (element) => {
+        const target = parseInt(element.getAttribute('data-count'));
+        const duration = 2000; // 2 seconds
+        const step = target / (duration / 16); // 60fps
+        let current = 0;
+        
+        const timer = setInterval(() => {
+            current += step;
+            if (current >= target) {
+                current = target;
+                clearInterval(timer);
+            }
+            
+            // Special formatting for rating
+            if (element.parentElement.querySelector('.stat-label').textContent.includes('Rating')) {
+                element.textContent = current.toFixed(1);
+            } else {
+                element.textContent = Math.floor(current).toLocaleString();
+            }
+        }, 16);
+    };
+    
+    // Use Intersection Observer to trigger animation when stats come into view
+    if ('IntersectionObserver' in window) {
+        const statsObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    animateCounter(entry.target);
+                    statsObserver.unobserve(entry.target);
+                }
+            });
+        }, {
+            threshold: 0.5
+        });
+        
+        statNumbers.forEach(stat => {
+            statsObserver.observe(stat);
+        });
+    } else {
+        // Fallback for browsers without IntersectionObserver
+        statNumbers.forEach(stat => {
+            animateCounter(stat);
+        });
+    }
+}
+
+// Function to initialize hero stats counter animation
+function initHeroStatsCounter() {
+    const heroStatNumbers = document.querySelectorAll('.stat-number-hero');
+    
+    if (!heroStatNumbers.length) return;
+    
+    const animateHeroCounter = (element) => {
+        const target = parseFloat(element.getAttribute('data-count'));
+        const duration = 2000;
+        const step = target / (duration / 16);
+        let current = 0;
+        
+        const timer = setInterval(() => {
+            current += step;
+            if (current >= target) {
+                current = target;
+                clearInterval(timer);
+            }
+            
+            // Special formatting for rating
+            if (element.parentElement.querySelector('.stat-label-hero').textContent.includes('Rating')) {
+                element.textContent = current.toFixed(1);
+            } else {
+                element.textContent = Math.floor(current).toLocaleString();
+            }
+        }, 16);
+    };
+    
+    // Trigger animation after a short delay for better UX
+    setTimeout(() => {
+        heroStatNumbers.forEach(stat => {
+            animateHeroCounter(stat);
+        });
+    }, 1000);
+}
+
+// Add smooth scroll functionality for demo button
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.demo-btn')) {
+        e.preventDefault();
+        const targetElement = document.querySelector('#interactive-demo');
+        if (targetElement) {
+            const headerOffset = 80;
+            const elementPosition = targetElement.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+            
+            window.scrollTo({
+                top: offsetPosition,
+                behavior: 'smooth'
+            });
+        }
+    }
+    
+    // Smooth scroll for scroll indicator
+    if (e.target.closest('.scroll-indicator')) {
+        e.preventDefault();
+        const featuredSection = document.querySelector('.featured-img');
+        if (featuredSection) {
+            const headerOffset = 80;
+            const elementPosition = featuredSection.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+            
+            window.scrollTo({
+                top: offsetPosition,
+                behavior: 'smooth'
+            });
+        }
+    }
+});

@@ -531,6 +531,8 @@ nav a:hover::after, nav a.active::after {
     background-color: var(--primary-color);
     color: #000;
     box-shadow: var(--box-shadow);
+    position: relative;
+    z-index: 1;
 }
 
 .primary-btn:hover {
@@ -936,6 +938,7 @@ nav a:hover::after, nav a.active::after {
     background: linear-gradient(135deg, rgba(110, 198, 255, 0.1), rgba(255, 179, 0, 0.1));
     position: relative;
     overflow: hidden;
+    z-index: 1;
 }
 
 .cta-section::before {

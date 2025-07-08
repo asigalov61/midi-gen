@@ -51,7 +51,7 @@ r'''############################################################################
 
 ###################################################################################
 
-__version__ = "25.5.6"
+__version__ = "25.7.8"
 
 print('=' * 70)
 print('TMIDIX Python module')
@@ -1512,6 +1512,9 @@ import shutil
 import hashlib
 
 from array import array
+
+from pathlib import Path
+from fnmatch import fnmatch
 
 ###################################################################################
 #
@@ -3721,19 +3724,51 @@ def validate_pitches(chord, channel_to_check = 0, return_sorted = True):
       chord.sort(key = lambda x: x[4], reverse=True)
       return chord
 
-def adjust_score_velocities(score, max_velocity):
-
-    min_velocity = min([c[5] for c in score])
-    max_velocity_all_channels = max([c[5] for c in score])
-    min_velocity_ratio = min_velocity / max_velocity_all_channels
-
-    max_channel_velocity = max([c[5] for c in score])
-    if max_channel_velocity < min_velocity:
-        factor = max_velocity / min_velocity
+def adjust_score_velocities(score,
+                            max_velocity,
+                            adj_per_channel=False,
+                            adj_in_place=True
+                           ):
+  
+    if adj_in_place:
+        buf = score
+        
     else:
-        factor = max_velocity / max_channel_velocity
-    for i in range(len(score)):
-        score[i][5] = int(score[i][5] * factor)
+        buf = copy.deepcopy(score)
+
+    notes = [evt for evt in buf if evt[0] == 'note']
+    
+    if not notes:
+        return buf
+
+    if adj_per_channel:
+        channel_max = {}
+        
+        for _, _, _, ch, _, vel, _ in notes:
+            channel_max[ch] = max(channel_max.get(ch, 0), vel)
+
+        channel_factor = {
+            ch: (max_velocity / vmax if vmax > 0 else 1.0)
+            for ch, vmax in channel_max.items()
+        }
+
+        for evt in buf:
+            if evt[0] == 'note':
+                ch = evt[3]
+                factor = channel_factor.get(ch, 1.0)
+                new_vel = int(evt[5] * factor)
+                evt[5] = max(1, min(127, new_vel))
+
+    else:
+        global_max = max(vel for _, _, _, _, _, vel, _ in notes)
+        factor = max_velocity / global_max if global_max > 0 else 1.0
+
+        for evt in buf:
+            if evt[0] == 'note':
+                new_vel = int(evt[5] * factor)
+                evt[5] = max(1, min(127, new_vel))
+
+    return buf
 
 def chordify_score(score,
                   return_choridfied_score=True,
@@ -5073,7 +5108,7 @@ def patch_enhanced_score_notes(enhanced_score_notes,
             else:
               e[3] = patches.index(e[6])
 
-          enhanced_score_notes_with_patch_changes.append(e)
+        enhanced_score_notes_with_patch_changes.append(e)
 
     #===========================================================================
 
@@ -12961,12 +12996,12 @@ def ordered_groups_unsorted(data, key_index):
 
 ###################################################################################
 
-def ordered_groups(data, key_index):
+def ordered_groups(data, ptc_idx, pat_idx):
     
     groups = OrderedDict()
     
     for sublist in data:
-        key = sublist[key_index]
+        key = tuple([sublist[ptc_idx], sublist[pat_idx]])
         
         if key not in groups:
             groups[key] = []
@@ -13110,13 +13145,14 @@ def fix_escore_notes_durations(escore_notes,
                                times_idx=1,
                                durs_idx=2,
                                channels_idx = 3, 
-                               pitches_idx=4
+                               pitches_idx=4,
+                               patches_idx=6
                               ):
 
     notes = [e for e in escore_notes if e[channels_idx] != 9]
     drums = [e for e in escore_notes if e[channels_idx] == 9]
     
-    escore_groups = ordered_groups(notes, pitches_idx)
+    escore_groups = ordered_groups(notes, pitches_idx, patches_idx)
 
     merged_score = []
 
@@ -13131,7 +13167,7 @@ def fix_escore_notes_durations(escore_notes,
         elif len(g) == 2:
 
             if g[0][times_idx]+g[0][durs_idx] >= g[1][times_idx]:
-                g[0][durs_idx] = max(1, g[1][times_idx] - g[0][times_idx] - 1)
+                g[0][durs_idx] = max(1, g[1][times_idx] - g[0][times_idx] - min_notes_gap)
                 
             merged_score.extend(g)
 
@@ -13139,6 +13175,378 @@ def fix_escore_notes_durations(escore_notes,
             merged_score.extend(g)
 
     return sorted(merged_score + drums, key=lambda x: x[times_idx])
+
+###################################################################################
+
+def create_nested_chords_tree(chords_list):
+    
+    tree = {}
+    
+    for chord in chords_list:
+        
+        node = tree
+        
+        for semitone in chord:
+            if semitone not in node:
+                node[semitone] = {}
+                
+            node = node[semitone]
+            
+        node.setdefault(-1, []).append(chord)
+        
+    return tree
+
+###################################################################################
+
+def get_chords_with_prefix(nested_chords_tree, prefix):
+   
+    node = nested_chords_tree
+    
+    for semitone in prefix:
+        if semitone in node:
+            node = node[semitone]
+            
+        else:
+            return []
+
+    collected_chords = []
+    
+    def recursive_collect(subnode):
+        if -1 in subnode:
+            collected_chords.extend(subnode[-1])
+            
+        for key, child in subnode.items():
+            if key != -1:
+                recursive_collect(child)
+                
+    recursive_collect(node)
+    
+    return collected_chords
+
+###################################################################################
+
+def get_chords_by_semitones(chords_list, chord_semitones):
+
+    query_set = set(chord_semitones)
+    results = []
+
+    for chord in chords_list:
+        
+        chord_set = set(chord)
+        
+        if query_set.issubset(chord_set):
+            results.append(sorted(set(chord)))
+            
+    return results
+
+###################################################################################
+
+def remove_duplicate_pitches_from_escore_notes(escore_notes, 
+                                               pitches_idx=4, 
+                                               patches_idx=6, 
+                                               return_dupes_count=False
+                                              ):
+    
+    cscore = chordify_score([1000, escore_notes])
+
+    new_escore = []
+
+    bp_count = 0
+
+    for c in cscore:
+        
+        cho = []
+        seen = []
+
+        for cc in c:
+            if [cc[pitches_idx], cc[patches_idx]] not in seen:
+                cho.append(cc)
+                seen.append([cc[pitches_idx], cc[patches_idx]])
+
+            else:
+                bp_count += 1
+
+        new_escore.extend(cho)
+        
+    if return_dupes_count:
+        return bp_count
+        
+    else:
+        return new_escore
+
+###################################################################################
+    
+def chunks_shuffle(lst,
+                   min_len=1,
+                   max_len=3,
+                   seed=None
+                   ):
+    
+    rnd = random.Random(seed)
+    chunks = []
+    i, n = 0, len(lst)
+
+    while i < n:
+        size = rnd.randint(min_len, max_len)
+        size = min(size, n - i)
+        chunks.append(lst[i : i + size])
+        i += size
+
+    rnd.shuffle(chunks)
+
+    flattened = []
+    for chunk in chunks:
+        flattened.extend(chunk)
+
+    return flattened
+
+###################################################################################
+
+def convert_bytes_in_nested_list(lst, 
+                                 encoding='utf-8', 
+                                 errors='ignore',
+                                 return_changed_events_count=False
+                                ):
+    
+    new_list = []
+
+    ce_count = 0
+    
+    for item in lst:
+        if isinstance(item, list):
+            new_list.append(convert_bytes_in_nested_list(item))
+            
+        elif isinstance(item, bytes):
+            new_list.append(item.decode(encoding, errors=errors))
+            ce_count += 1
+            
+        else:
+            new_list.append(item)
+            
+    if return_changed_events_count:       
+        return new_list, ce_count
+
+    else:
+        return new_list
+    
+###################################################################################
+    
+def find_deepest_midi_dirs(roots,
+                           marker_file="midi_score.mid",
+                           suffixes=None,
+                           randomize=False,
+                           seed=None,
+                           verbose=False
+                          ):
+    
+    try:
+        iter(roots)
+        if isinstance(roots, (str, Path)):
+            root_list = [roots]
+        else:
+            root_list = list(roots)
+            
+    except TypeError:
+        root_list = [roots]
+
+    if isinstance(marker_file, (list, tuple)):
+        patterns = [p.lower() for p in marker_file if p]
+        
+    else:
+        patterns = [marker_file.lower()] if marker_file else []
+
+    allowed = {s.lower() for s in (suffixes or ['.mid', '.midi', '.kar'])}
+
+    if verbose:
+        print("Settings:")
+        print("  Roots:", [str(r) for r in root_list])
+        print("  Marker patterns:", patterns or "<no marker filter>")
+        print("  Allowed suffixes:", allowed)
+        print(f"  Randomize={randomize}, Seed={seed}")
+
+    results = defaultdict(list)
+    rng = random.Random(seed)
+
+    for root in root_list:
+
+        root_path = Path(root)
+        
+        if not root_path.is_dir():
+            print(f"Warning: '{root_path}' is not a valid directory, skipping.")
+            continue
+
+        if verbose:
+            print(f"\nScanning root: {str(root_path)}")
+
+        all_dirs = list(root_path.rglob("*"))
+        dirs_iter = tqdm.tqdm(all_dirs, desc=f"Dirs in {root_path.name}", disable=not verbose)
+
+        for dirpath in dirs_iter:
+            if not dirpath.is_dir():
+                continue
+
+            children = list(dirpath.iterdir())
+            if any(child.is_dir() for child in children):
+                if verbose:
+                    print(f"Skipping non-leaf: {str(dirpath)}")
+                continue
+
+            files = [f for f in children if f.is_file()]
+            names = [f.name.lower() for f in files]
+
+            if patterns:
+                matched = any(fnmatch(name, pat) for name in names for pat in patterns)
+                if not matched:
+                    if verbose:
+                        print(f"No marker in: {str(dirpath)}")
+                    continue
+                    
+                if verbose:
+                    print(f"Marker found in: {str(dirpath)}")
+                    
+            else:
+                if verbose:
+                    print(f"Including leaf (no marker): {str(dirpath)}")
+
+            for f in files:
+                if f.suffix.lower() in allowed:
+                    results[str(dirpath)].append(str(f))
+                    
+                    if verbose:
+                        print(f"  Collected: {f.name}")
+
+    all_leaves = list(results.keys())
+    if randomize:
+        if verbose:
+            print("\nShuffling leaf directories")
+            
+        rng.shuffle(all_leaves)
+        
+    else:
+        all_leaves.sort()
+
+    final_dict = {}
+    
+    for leaf in all_leaves:
+        file_list = results[leaf][:]
+        if randomize:
+            if verbose:
+                print(f"Shuffling files in: {leaf}")
+                
+            rng.shuffle(file_list)
+            
+        else:
+            file_list.sort()
+            
+        final_dict[leaf] = file_list
+
+    if verbose:
+        print("\nScan complete. Found directories:")
+        for d, fl in final_dict.items():
+            print(f"  {d} -> {len(fl)} files")
+
+    return final_dict
+
+###################################################################################
+
+PERCUSSION_GROUPS = {
+    
+    1: {  # Bass Drums
+        35: 'Acoustic Bass Drum',
+        36: 'Bass Drum 1',
+    },
+    2: {  # Stick
+        37: 'Side Stick',
+    },
+    3: {  # Snares
+        38: 'Acoustic Snare',
+        40: 'Electric Snare',
+    },
+    4: {  # Claps
+        39: 'Hand Clap',
+    },
+    5: {  # Floor Toms
+        41: 'Low Floor Tom',
+        43: 'High Floor Tom',
+    },
+    6: {  # Hi-Hats
+        42: 'Closed Hi-Hat',
+        44: 'Pedal Hi-Hat',
+        46: 'Open Hi-Hat',
+    },
+    7: {  # Toms
+        45: 'Low Tom',
+        47: 'Low-Mid Tom',
+        48: 'Hi-Mid Tom',
+        50: 'High Tom',
+    },
+    8: {  # Cymbals
+        49: 'Crash Cymbal 1',
+        51: 'Ride Cymbal 1',
+        52: 'Chinese Cymbal',
+        55: 'Splash Cymbal',
+        57: 'Crash Cymbal 2',
+        59: 'Ride Cymbal 2',
+    },
+    9: {  # Bells
+        53: 'Ride Bell',
+    },
+    10: {  # Tambourine
+        54: 'Tambourine',
+    },
+    11: {  # Cowbell
+        56: 'Cowbell',
+    },
+    12: {  # Vibraslap
+        58: 'Vibraslap',
+    },
+    13: {  # Bongos
+        60: 'Hi Bongo',
+        61: 'Low Bongo',
+    },
+    14: {  # Congas
+        62: 'Mute Hi Conga',
+        63: 'Open Hi Conga',
+        64: 'Low Conga',
+    },
+    15: {  # Timbales
+        65: 'High Timbale',
+        66: 'Low Timbale',
+    },
+    16: {  # Agogô
+        67: 'High Agogo',
+        68: 'Low Agogo',
+    },
+    17: {  # Cabasa
+        69: 'Cabasa',
+    },
+    18: {  # Maracas
+        70: 'Maracas',
+    },
+    19: {  # Whistles
+        71: 'Short Whistle',
+        72: 'Long Whistle',
+    },
+    20: {  # Guiros
+        73: 'Short Guiro',
+        74: 'Long Guiro',
+    },
+    21: {  # Claves
+        75: 'Claves',
+    },
+    22: {  # Wood Blocks
+        76: 'Hi Wood Block',
+        77: 'Low Wood Block',
+    },
+    23: {  # Cuica
+        78: 'Mute Cuica',
+        79: 'Open Cuica',
+    },
+    24: {  # Triangles
+        80: 'Mute Triangle',
+        81: 'Open Triangle',
+    },
+}
 
 ###################################################################################
 
